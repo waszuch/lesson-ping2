@@ -6,20 +6,22 @@ import { schedules } from "@/lib/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { scheduleSchema } from "@/lib/validations/schedule";
 import { regenerateNotifications } from "@/lib/reminders/generate-notifications";
+import { ensureProfile } from "@/lib/db/ensure-profile";
 import { eq, and } from "drizzle-orm";
 
-async function getAuthenticatedUserId(): Promise<string> {
+async function getAuthenticatedUser(): Promise<{ id: string; email: string }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) throw new Error("Unauthorized");
-  return user.id;
+  if (!user || !user.email) throw new Error("Unauthorized");
+  return { id: user.id, email: user.email };
 }
 
 export async function createSchedule(formData: FormData) {
-  const userId = await getAuthenticatedUserId();
+  const { id: userId, email } = await getAuthenticatedUser();
+  await ensureProfile(userId, email);
 
   const raw = {
     title: formData.get("title"),
@@ -46,7 +48,7 @@ export async function createSchedule(formData: FormData) {
 }
 
 export async function updateSchedule(id: string, formData: FormData) {
-  const userId = await getAuthenticatedUserId();
+  const { id: userId } = await getAuthenticatedUser();
 
   const raw = {
     title: formData.get("title"),
@@ -74,7 +76,7 @@ export async function updateSchedule(id: string, formData: FormData) {
 }
 
 export async function deleteSchedule(id: string) {
-  const userId = await getAuthenticatedUserId();
+  const { id: userId } = await getAuthenticatedUser();
 
   await db
     .delete(schedules)
