@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { schedules } from "@/lib/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { scheduleSchema } from "@/lib/validations/schedule";
+import { regenerateNotifications } from "@/lib/reminders/generate-notifications";
 import { eq, and } from "drizzle-orm";
 
 async function getAuthenticatedUserId(): Promise<string> {
@@ -33,10 +34,12 @@ export async function createSchedule(formData: FormData) {
     return { error: parsed.error.errors[0].message };
   }
 
-  await db.insert(schedules).values({
-    userId,
-    ...parsed.data,
-  });
+  const [created] = await db
+    .insert(schedules)
+    .values({ userId, ...parsed.data })
+    .returning();
+
+  await regenerateNotifications(created);
 
   revalidatePath("/dashboard");
   return { success: true };
@@ -58,10 +61,13 @@ export async function updateSchedule(id: string, formData: FormData) {
     return { error: parsed.error.errors[0].message };
   }
 
-  await db
+  const [updated] = await db
     .update(schedules)
     .set({ ...parsed.data, updatedAt: new Date() })
-    .where(and(eq(schedules.id, id), eq(schedules.userId, userId)));
+    .where(and(eq(schedules.id, id), eq(schedules.userId, userId)))
+    .returning();
+
+  await regenerateNotifications(updated);
 
   revalidatePath("/dashboard");
   return { success: true };
