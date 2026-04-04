@@ -9,11 +9,13 @@ const DAY_TO_INDEX: Record<string, number> = {
 };
 
 /**
- * Returns the next occurrence of the given day/time combination
- * as a UTC Date, minus the reminder offset.
+ * Returns the next UTC Date at which the reminder should be sent.
  *
- * If the resulting send-at time is in the past (i.e. the reminder
- * for this week already passed), we advance by 7 days.
+ * The startTime is treated as the user's local wall-clock time.
+ * We find the next calendar occurrence of the given weekday + time
+ * (in local time), subtract the reminder offset, then convert to UTC.
+ *
+ * If that moment is already in the past we advance by 7 days.
  */
 export function calculateNextSendAt(
   dayOfWeek: string,
@@ -24,26 +26,26 @@ export function calculateNextSendAt(
   const [hours, minutes] = startTime.split(":").map(Number);
 
   const now = new Date();
-  const currentDay = now.getUTCDay();
+  const currentDay = now.getDay(); // local day
 
   let daysUntilTarget = (targetDay - currentDay + 7) % 7;
 
+  // Build the lesson datetime in local time
   const candidate = new Date(
-    Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate() + daysUntilTarget,
-      hours,
-      minutes,
-      0,
-      0
-    )
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + daysUntilTarget,
+    hours,
+    minutes,
+    0,
+    0
   );
 
   const sendAt = new Date(candidate.getTime() - reminderBeforeMinutes * 60 * 1000);
 
+  // If the reminder time has already passed this week, schedule for next week
   if (sendAt <= now) {
-    sendAt.setUTCDate(sendAt.getUTCDate() + 7);
+    sendAt.setDate(sendAt.getDate() + 7);
   }
 
   return sendAt;
