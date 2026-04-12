@@ -3,6 +3,15 @@
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil } from "lucide-react";
+
+const HOURS = Array.from({ length: 24 }, (_, i) => ({
+  value: String(i).padStart(2, "0"),
+  label: String(i).padStart(2, "0"),
+}));
+
+const MINUTES = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"].map(
+  (m) => ({ value: m, label: m })
+);
 import {
   Dialog,
   DialogContent,
@@ -38,6 +47,11 @@ export function ScheduleForm({ schedule }: Props) {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
+  const defaultHour = schedule?.startTime?.slice(0, 2) ?? "08";
+  const defaultMinute = schedule?.startTime?.slice(3, 5) ?? "00";
+  const [selectedHour, setSelectedHour] = useState(defaultHour);
+  const [selectedMinute, setSelectedMinute] = useState(defaultMinute);
+
   const isEditing = !!schedule;
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -57,6 +71,10 @@ export function ScheduleForm({ schedule }: Props) {
       toast.success(isEditing ? "Schedule updated" : "Schedule created");
       setOpen(false);
       formRef.current?.reset();
+      if (!isEditing) {
+        setSelectedHour("08");
+        setSelectedMinute("00");
+      }
     });
   }
 
@@ -116,14 +134,39 @@ export function ScheduleForm({ schedule }: Props) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="startTime">Start time</Label>
-              <Input
-                id="startTime"
+              <Label>Start time</Label>
+              <input
+                type="hidden"
                 name="startTime"
-                type="time"
-                defaultValue={schedule?.startTime?.slice(0, 5)}
-                required
+                value={`${selectedHour}:${selectedMinute}`}
               />
+              <div className="flex gap-1.5">
+                <Select value={selectedHour} onValueChange={setSelectedHour}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {HOURS.map((h) => (
+                      <SelectItem key={h.value} value={h.value}>
+                        {h.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="flex items-center text-muted-foreground font-medium">:</span>
+                <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MINUTES.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
