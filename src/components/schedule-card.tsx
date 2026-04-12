@@ -52,12 +52,12 @@ export function ScheduleCard({ schedule }: Props) {
 
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteSchedule(schedule.id);
-      if (result.error) {
+      try {
+        await deleteSchedule(schedule.id);
+        toast.success("Lesson deleted");
+      } catch {
         toast.error("Failed to delete lesson");
-        return;
       }
-      toast.success("Lesson deleted");
     });
   }
 

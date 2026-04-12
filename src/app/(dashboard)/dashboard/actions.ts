@@ -33,7 +33,7 @@ export async function createSchedule(formData: FormData) {
 
   const parsed = scheduleSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   const [created] = await db
@@ -60,7 +60,7 @@ export async function updateSchedule(id: string, formData: FormData) {
 
   const parsed = scheduleSchema.safeParse(raw);
   if (!parsed.success) {
-    return { error: parsed.error.errors[0].message };
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
 
   const [updated] = await db
