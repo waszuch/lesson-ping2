@@ -8,14 +8,27 @@ const DAY_TO_INDEX: Record<string, number> = {
   saturday: 6,
 };
 
+const TIMEZONE = "Europe/Warsaw";
+
+/**
+ * Returns the Warsaw UTC offset in hours for a given UTC date.
+ * Handles DST automatically (UTC+1 in winter, UTC+2 in summer).
+ */
+function getWarsawOffsetHours(utcDate: Date): number {
+  const utcMs = utcDate.getTime();
+  const warsawMs = new Date(
+    utcDate.toLocaleString("en-US", { timeZone: TIMEZONE })
+  ).getTime();
+  return Math.round((warsawMs - utcMs) / 3_600_000);
+}
+
 /**
  * Returns the next UTC Date at which the reminder should be sent.
  *
- * The startTime is treated as the user's local wall-clock time.
- * We find the next calendar occurrence of the given weekday + time
- * (in local time), subtract the reminder offset, then convert to UTC.
- *
- * If that moment is already in the past we advance by 7 days.
+ * startTime is the user's wall-clock time in Europe/Warsaw.
+ * We find the next occurrence of (dayOfWeek + startTime) in Warsaw time,
+ * convert it to UTC, then subtract the reminder offset.
+ * If the resulting moment is already in the past, advance by 7 days.
  */
 export function calculateNextSendAt(
   dayOfWeek: string,
@@ -23,29 +36,29 @@ export function calculateNextSendAt(
   reminderBeforeMinutes: number
 ): Date {
   const targetDay = DAY_TO_INDEX[dayOfWeek];
-  const [hours, minutes] = startTime.split(":").map(Number);
+  const [lessonHour, lessonMinute] = startTime.split(":").map(Number);
 
   const now = new Date();
-  const currentDay = now.getDay(); // local day
 
-  let daysUntilTarget = (targetDay - currentDay + 7) % 7;
+  // Find Warsaw's current weekday by getting a Warsaw-local date string
+  const warsawNow = new Date(now.toLocaleString("en-US", { timeZone: TIMEZONE }));
+  const currentDay = warsawNow.getDay();
+  const daysUntilTarget = (targetDay - currentDay + 7) % 7;
 
-  // Build the lesson datetime in local time
-  const candidate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() + daysUntilTarget,
-    hours,
-    minutes,
-    0,
-    0
-  );
+  // Build the target date in Warsaw local time
+  const targetWarsawDate = new Date(warsawNow);
+  targetWarsawDate.setDate(warsawNow.getDate() + daysUntilTarget);
+  targetWarsawDate.setHours(lessonHour, lessonMinute, 0, 0);
 
-  const sendAt = new Date(candidate.getTime() - reminderBeforeMinutes * 60 * 1000);
+  // Convert to UTC: subtract Warsaw offset at a rough UTC estimate
+  const roughUtc = new Date(targetWarsawDate.getTime());
+  const offsetHours = getWarsawOffsetHours(roughUtc);
+  const lessonUtc = new Date(targetWarsawDate.getTime() - offsetHours * 3_600_000);
 
-  // If the reminder time has already passed this week, schedule for next week
+  const sendAt = new Date(lessonUtc.getTime() - reminderBeforeMinutes * 60_000);
+
   if (sendAt <= now) {
-    sendAt.setDate(sendAt.getDate() + 7);
+    sendAt.setUTCDate(sendAt.getUTCDate() + 7);
   }
 
   return sendAt;
