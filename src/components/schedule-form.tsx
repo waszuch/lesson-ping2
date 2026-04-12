@@ -141,7 +141,7 @@ export function ScheduleForm({ schedule }: Props) {
                 value={`${selectedHour}:${selectedMinute}`}
               />
               <div className="flex gap-1.5">
-                <Select value={selectedHour} onValueChange={setSelectedHour}>
+                <Select value={selectedHour} onValueChange={(v) => v && setSelectedHour(v)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -154,7 +154,7 @@ export function ScheduleForm({ schedule }: Props) {
                   </SelectContent>
                 </Select>
                 <span className="flex items-center text-muted-foreground font-medium">:</span>
-                <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+                <Select value={selectedMinute} onValueChange={(v) => v && setSelectedMinute(v)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>

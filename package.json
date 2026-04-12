@@ -33,6 +33,9 @@
     "twilio": "^5.13.0",
     "zod": "^4.3.6"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "msw"]
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
