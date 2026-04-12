@@ -4,14 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Plus, Pencil } from "lucide-react";
 
-const HOURS = Array.from({ length: 24 }, (_, i) => ({
-  value: String(i).padStart(2, "0"),
-  label: String(i).padStart(2, "0"),
-}));
 
-const MINUTES = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"].map(
-  (m) => ({ value: m, label: m })
-);
 import {
   Dialog,
   DialogContent,
@@ -140,32 +133,43 @@ export function ScheduleForm({ schedule }: Props) {
                 name="startTime"
                 value={`${selectedHour}:${selectedMinute}`}
               />
-              <div className="flex gap-1.5">
-                <Select value={selectedHour} onValueChange={(v) => v && setSelectedHour(v)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {HOURS.map((h) => (
-                      <SelectItem key={h.value} value={h.value}>
-                        {h.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <span className="flex items-center text-muted-foreground font-medium">:</span>
-                <Select value={selectedMinute} onValueChange={(v) => v && setSelectedMinute(v)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MINUTES.map((m) => (
-                      <SelectItem key={m.value} value={m.value}>
-                        {m.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-1.5">
+                <Input
+                  className="w-full text-center"
+                  value={selectedHour}
+                  maxLength={2}
+                  inputMode="numeric"
+                  placeholder="00"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+                    if (val === "" || (parseInt(val) >= 0 && parseInt(val) <= 23)) {
+                      setSelectedHour(val);
+                    }
+                  }}
+                  onBlur={() => {
+                    const num = parseInt(selectedHour || "0");
+                    setSelectedHour(String(Math.min(23, Math.max(0, isNaN(num) ? 0 : num))).padStart(2, "0"));
+                  }}
+                />
+                <span className="text-muted-foreground font-medium">:</span>
+                <Input
+                  className="w-full text-center"
+                  value={selectedMinute}
+                  maxLength={2}
+                  inputMode="numeric"
+                  pattern="[0-5]?[0-9]"
+                  placeholder="00"
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+                    if (val === "" || (parseInt(val) >= 0 && parseInt(val) <= 59)) {
+                      setSelectedMinute(val);
+                    }
+                  }}
+                  onBlur={() => {
+                    const num = parseInt(selectedMinute || "0");
+                    setSelectedMinute(String(Math.min(59, Math.max(0, isNaN(num) ? 0 : num))).padStart(2, "0"));
+                  }}
+                />
               </div>
             </div>
           </div>
