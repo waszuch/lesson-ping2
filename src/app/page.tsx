@@ -10,7 +10,7 @@ export default function Home() {
       <div className="mx-auto flex max-w-sm flex-col items-center gap-8 text-center">
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-bold tracking-tight">
-            LessonPing
+            LessonPing1
           </h1>
           <p className="text-muted-foreground text-lg">
             Never miss a lesson. Get SMS & email reminders for your weekly class schedule.
