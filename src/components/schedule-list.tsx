@@ -24,7 +24,7 @@ export function ScheduleList({ schedules }: Props) {
         <div>
           <p className="text-sm font-medium">No lessons yet</p>
           <p className="text-xs text-muted-foreground">
-            Add your first lesson to get started
+            Add your first lesson to get started!
           </p>
         </div>
       </div>
