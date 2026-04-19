@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Bell, CalendarDays, Clock3, Sparkles } from "lucide-react";
+import { Bell, CalendarDays, Sparkles } from "lucide-react";
 import { db } from "@/lib/db";
 import { schedules } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -23,9 +23,6 @@ export default async function DashboardPage() {
 
   const totalLessons = userSchedules.length;
   const smsEnabled = userSchedules.filter((item) => item.notificationType !== "email").length;
-  const earliestTime = userSchedules.length
-    ? userSchedules.map((item) => item.startTime).sort((a, b) => a.localeCompare(b))[0]
-    : null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -44,7 +41,7 @@ export default async function DashboardPage() {
         <ScheduleForm />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Card className="border-primary/10 bg-white/80 shadow-sm shadow-primary/5 dark:border-primary/15 dark:bg-white/8 dark:shadow-black/20">
           <CardHeader className="pb-1">
             <CardTitle className="flex items-center gap-2 text-sm font-semibold">
@@ -62,17 +59,6 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">{smsEnabled}</CardContent>
-        </Card>
-        <Card className="border-emerald-200/70 bg-emerald-50/70 shadow-sm shadow-emerald-100/70 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:shadow-black/20">
-          <CardHeader className="pb-1">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-              <Clock3 className="size-4 text-emerald-600 dark:text-emerald-300" />
-              Earliest class
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-2xl font-semibold">
-            {earliestTime ? earliestTime.slice(0, 5) : "—"}
-          </CardContent>
         </Card>
       </div>
 
