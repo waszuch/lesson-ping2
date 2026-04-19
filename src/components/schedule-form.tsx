@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil } from "lucide-react";
+import { Clock3, Plus, Pencil, Timer } from "lucide-react";
 
 
 import {
@@ -40,12 +40,57 @@ export function ScheduleForm({ schedule }: Props) {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
+  const defaultTitle = schedule?.title ?? "";
+  const defaultDayOfWeek = schedule?.dayOfWeek ?? "monday";
   const defaultHour = schedule?.startTime?.slice(0, 2) ?? "08";
   const defaultMinute = schedule?.startTime?.slice(3, 5) ?? "00";
+  const defaultReminderBeforeMinutes = String(schedule?.reminderBeforeMinutes ?? 10);
+  const defaultNotificationType = schedule?.notificationType ?? "email";
+
+  const [title, setTitle] = useState(defaultTitle);
+  const [selectedDayOfWeek, setSelectedDayOfWeek] = useState(defaultDayOfWeek);
   const [selectedHour, setSelectedHour] = useState(defaultHour);
   const [selectedMinute, setSelectedMinute] = useState(defaultMinute);
+  const [selectedReminderBeforeMinutes, setSelectedReminderBeforeMinutes] = useState(
+    defaultReminderBeforeMinutes,
+  );
+  const [selectedNotificationType, setSelectedNotificationType] = useState(defaultNotificationType);
 
   const isEditing = !!schedule;
+
+  function resetFormState() {
+    setTitle(defaultTitle);
+    setSelectedDayOfWeek(defaultDayOfWeek);
+    setSelectedHour(defaultHour);
+    setSelectedMinute(defaultMinute);
+    setSelectedReminderBeforeMinutes(defaultReminderBeforeMinutes);
+    setSelectedNotificationType(defaultNotificationType);
+  }
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      resetFormState();
+    }
+  }
+
+  function handleDayOfWeekChange(value: Schedule["dayOfWeek"] | null) {
+    if (value !== null) {
+      setSelectedDayOfWeek(value);
+    }
+  }
+
+  function handleReminderBeforeMinutesChange(value: string | null) {
+    if (value !== null) {
+      setSelectedReminderBeforeMinutes(value);
+    }
+  }
+
+  function handleNotificationTypeChange(value: Schedule["notificationType"] | null) {
+    if (value !== null) {
+      setSelectedNotificationType(value);
+    }
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -65,20 +110,19 @@ export function ScheduleForm({ schedule }: Props) {
       setOpen(false);
       formRef.current?.reset();
       if (!isEditing) {
-        setSelectedHour("08");
-        setSelectedMinute("00");
+        resetFormState();
       }
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
           isEditing ? (
             <Button variant="ghost" size="icon-sm" />
           ) : (
-            <Button size="default" className="gap-2" />
+            <Button size="default" className="gap-2 shadow-sm" />
           )
         }
       >
@@ -92,9 +136,12 @@ export function ScheduleForm({ schedule }: Props) {
         )}
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit lesson" : "Add lesson"}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Clock3 className="text-primary size-4" />
+            {isEditing ? "Edit lesson" : "Add lesson"}
+          </DialogTitle>
         </DialogHeader>
 
         <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -104,7 +151,8 @@ export function ScheduleForm({ schedule }: Props) {
               id="title"
               name="title"
               placeholder="e.g. Math, English"
-              defaultValue={schedule?.title}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
@@ -112,7 +160,11 @@ export function ScheduleForm({ schedule }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="dayOfWeek">Day</Label>
-              <Select name="dayOfWeek" defaultValue={schedule?.dayOfWeek ?? "monday"}>
+              <Select
+                name="dayOfWeek"
+                value={selectedDayOfWeek}
+                onValueChange={handleDayOfWeekChange}
+              >
                 <SelectTrigger id="dayOfWeek" className="w-full">
                   <SelectValue placeholder="Day" />
                 </SelectTrigger>
@@ -171,6 +223,7 @@ export function ScheduleForm({ schedule }: Props) {
                   }}
                 />
               </div>
+              <p className="text-xs text-muted-foreground">24-hour format (HH:MM)</p>
             </div>
           </div>
 
@@ -178,7 +231,8 @@ export function ScheduleForm({ schedule }: Props) {
             <Label htmlFor="reminderBeforeMinutes">Remind me</Label>
             <Select
               name="reminderBeforeMinutes"
-              defaultValue={String(schedule?.reminderBeforeMinutes ?? 10)}
+              value={selectedReminderBeforeMinutes}
+              onValueChange={handleReminderBeforeMinutesChange}
             >
               <SelectTrigger id="reminderBeforeMinutes" className="w-full">
                 <SelectValue placeholder="Reminder time" />
@@ -191,13 +245,18 @@ export function ScheduleForm({ schedule }: Props) {
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              <Timer className="mr-1 inline size-3 align-[-1px]" />
+              Choose how many minutes before class we should notify you.
+            </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="notificationType">Notification via</Label>
             <Select
               name="notificationType"
-              defaultValue={schedule?.notificationType ?? "email"}
+              value={selectedNotificationType}
+              onValueChange={handleNotificationTypeChange}
             >
               <SelectTrigger id="notificationType" className="w-full">
                 <SelectValue placeholder="Notification type" />

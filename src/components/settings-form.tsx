@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { Mail, Smartphone } from "lucide-react";
 import { updatePhone } from "@/app/(dashboard)/settings/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,19 +34,31 @@ export function SettingsForm({ email, currentPhone }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
+      <Card className="border-primary/10 bg-white/82 shadow-sm shadow-primary/5 dark:border-primary/15 dark:bg-white/8 dark:shadow-black/20">
         <CardHeader>
-          <CardTitle className="text-base">Account</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <span className="rounded-xl bg-primary/12 p-2 text-primary">
+              <Mail className="size-4" />
+            </span>
+            Account
+          </CardTitle>
           <CardDescription>Your login email address.</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">{email}</p>
+          <p className="rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+            {email}
+          </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-sky-200/70 bg-sky-50/65 shadow-sm shadow-sky-100/70 dark:border-sky-400/20 dark:bg-sky-500/10 dark:shadow-black/20">
         <CardHeader>
-          <CardTitle className="text-base">Phone number</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <span className="rounded-xl bg-sky-100 p-2 text-sky-700 dark:bg-sky-400/20 dark:text-sky-300">
+              <Smartphone className="size-4" />
+            </span>
+            Phone number
+          </CardTitle>
           <CardDescription>
             Required for SMS reminders. Use international format, e.g.{" "}
             <span className="font-mono">+48501234567</span>

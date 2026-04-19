@@ -48,24 +48,24 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.985 0.008 258);
+  --foreground: oklch(0.24 0.03 262);
+  --card: oklch(0.995 0.006 258);
+  --card-foreground: oklch(0.24 0.03 262);
+  --popover: oklch(0.995 0.006 258);
+  --popover-foreground: oklch(0.24 0.03 262);
+  --primary: oklch(0.61 0.2 267);
+  --primary-foreground: oklch(0.985 0.01 260);
+  --secondary: oklch(0.96 0.025 252);
+  --secondary-foreground: oklch(0.32 0.05 264);
+  --muted: oklch(0.962 0.014 255);
+  --muted-foreground: oklch(0.5 0.03 262);
+  --accent: oklch(0.962 0.03 190);
+  --accent-foreground: oklch(0.3 0.04 220);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.9 0.018 256);
+  --input: oklch(0.92 0.02 256);
+  --ring: oklch(0.72 0.12 262);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
@@ -83,24 +83,24 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.18 0.02 265);
+  --foreground: oklch(0.95 0.01 260);
+  --card: oklch(0.23 0.02 265);
+  --card-foreground: oklch(0.95 0.01 260);
+  --popover: oklch(0.23 0.02 265);
+  --popover-foreground: oklch(0.95 0.01 260);
+  --primary: oklch(0.72 0.17 270);
+  --primary-foreground: oklch(0.2 0.03 265);
+  --secondary: oklch(0.28 0.025 255);
+  --secondary-foreground: oklch(0.94 0.01 260);
+  --muted: oklch(0.26 0.02 260);
+  --muted-foreground: oklch(0.76 0.02 258);
+  --accent: oklch(0.29 0.04 210);
+  --accent-foreground: oklch(0.95 0.01 260);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.7 0.13 270);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
@@ -116,14 +116,43 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.dark body {
+  background-image:
+    radial-gradient(circle at 12% 18%, oklch(0.33 0.08 272 / 0.28), transparent 34%),
+    radial-gradient(circle at 88% 10%, oklch(0.34 0.08 185 / 0.22), transparent 30%),
+    radial-gradient(circle at 50% 100%, oklch(0.36 0.09 315 / 0.18), transparent 36%),
+    linear-gradient(to bottom, oklch(0.18 0.02 265), oklch(0.16 0.02 260));
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-svh transition-colors;
+    background-image:
+      radial-gradient(circle at 12% 18%, oklch(0.92 0.08 255 / 0.55), transparent 34%),
+      radial-gradient(circle at 88% 10%, oklch(0.94 0.07 165 / 0.45), transparent 30%),
+      radial-gradient(circle at 50% 100%, oklch(0.94 0.06 305 / 0.28), transparent 36%),
+      linear-gradient(to bottom, oklch(0.992 0.008 258), oklch(0.975 0.012 252));
+    background-attachment: fixed;
   }
   html {
     @apply font-sans;
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: oklch(0.86 0.12 251.8 / 0.35);
   }
 }
